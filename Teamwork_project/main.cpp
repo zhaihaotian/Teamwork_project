@@ -313,7 +313,7 @@ void query_type_2(string st , string ed){
 void query_type_3(string q1 , string q2 , string q3){
 	double minn_val = 99999999 ; 
 	string zhong ; 
-	for(int i = 100 ; i <= id_cnt ; i++){
+	for(int i = 1 ; i <= id_cnt ; i++){
 		// cout << mpp[i].nam << endl ; 
 		// printf("i : %d \n" , i) ; 
 		// cout << q1 << " " << q2  << " " << q3 << endl ; 

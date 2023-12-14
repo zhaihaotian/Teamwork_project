@@ -301,8 +301,8 @@ void query_type_3(string q1 , string q2 , string q3){
 	cout << "一起走的路程： " << endl ; 
 	query_type_1(q1 , zhong , 1) ; 
 	cout << "两人以后分别走的路程： " << endl ; 
-	query_type_1(zhong , q1 , 1) ;
 	query_type_1(zhong , q2 , 1) ;
+	query_type_1(zhong , q3 , 1) ;
 }
 
 void read_query(){

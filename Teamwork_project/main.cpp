@@ -88,7 +88,6 @@ void read_Undergound(){
         	tim[last][i] = tim[i][last] = 1.0*dis[last][i]/(v[s1]); 
         	G.add(i , last , tim[last][i]) ; GG.add(i , last , tim[last][i]) ;
 			G.add(last , i , tim[last][i]) ; GG.add(last , i , tim[last][i]) ;
-			// printf("i : %d last : %d \n" , i , last) ; 
 		}
         else
             temp = s1;
@@ -120,7 +119,6 @@ string change(string route){
 }
 
 double query_type_1(string st , string ed , bool print_ ){
-	// cout << "St : " << st << "ed : " << ed << endl ; 
 	if(st == ed){
 		if(print_){
 			cout << "从"  << st << "到"  << st << endl ; 
@@ -137,7 +135,6 @@ double query_type_1(string st , string ed , bool print_ ){
 		}
 		int st_id = mp[st][i] ; 
 		to_tim[st_id] = 0 ; 
-		// printf("st_id : %d \n" , st_id ) ; 
 		Q.push((nod){st_id , 0}) ; 
 		while(!Q.empty()){
 			nod now = Q.top() ; 
@@ -189,7 +186,6 @@ double query_type_1(string st , string ed , bool print_ ){
 	if(print_ == 0 || min_tim == 99999999){
 		return min_tim ; 
 	}
-	// printf("min_tim : %lf\n" , min_tim) ; 
 	int zz = 0 ; 
 	while(path[min_id].size()){
 		lasans[++zz] = path[min_id].front() ; 
@@ -210,7 +206,7 @@ double query_type_1(string st , string ed , bool print_ ){
 	int M=(min_tim-H*3600)/60;
 	cout << "预计花费" << H << "h" << M << 'm' << endl ; 
 	printf("\n") ; 
-	return 0 ; 
+	return min_tim ; 
 }
 
 void query_type_2(string st , string ed){
@@ -276,7 +272,6 @@ void query_type_2(string st , string ed){
 		lasans[++zz] = path[min_id].front() ; 
 		path[min_id].pop_front() ; 
 	}
-	// printf("min_tim : %lf \n"  ,min_tim) ; 
 	cout << "从" << change(mpp[lasans[1]].route) << "的" << mpp[lasans[1]].nam<< "开始" << endl ;  
 	for(int i = 2 ; i <= zz ; i++){
 		if(i == zz){
@@ -286,24 +281,9 @@ void query_type_2(string st , string ed){
 		if(mpp[lasans[i]].nam == mpp[lasans[i-1]].nam){
 			cout << "在" << mpp[lasans[i]].nam << "换乘" <<  change(mpp[lasans[i]].route) << endl ; 
 			min_tim -= change_tim[mpp[lasans[i]].nam] * (change_k - 1) ; 
-			// cout << mpp[lasans[i]].nam << endl ; 
-			// printf("change_tim : %lf \n" , change_tim[mpp[lasans[i]].nam] ) ; 
 		}
 		else cout << "途径" <<  mpp[lasans[i]].nam << endl ; 
 	}
-	/**/
-	// int cntt = 0 ; 
-	// printf("zz : %lld \n" , zz) ; 
-	// for(int i = zz ; i >= 2 ; i--){
-	// 	if(mpp[lasans[i]].nam == mpp[lasans[i-1]].nam)
-	// 		cntt++ , printf("i : %d \n" , i); 
-	// 	if(cntt == 2){
-	// 		cout << mpp[lasans[i]].nam << endl ; 
-	// 		printf("change_tim : %lf \n" , change_tim[mpp[lasans[i]].nam] ) ;  
-	// 		min_tim += change_tim[mpp[lasans[i]].nam] * (change_k - 1) ; 
-	// 		break ; 
-	// 	}
-	// } 
 	int H=min_tim/3600;
 	int M=(min_tim-H*3600)/60;
 	cout << "预计花费" << H << "h" << M << 'm' << endl ; 
@@ -314,15 +294,6 @@ void query_type_3(string q1 , string q2 , string q3){
 	double minn_val = 99999999 ; 
 	string zhong ; 
 	for(int i = 1 ; i <= id_cnt ; i++){
-		// cout << mpp[i].nam << endl ; 
-		// printf("i : %d \n" , i) ; 
-		// cout << q1 << " " << q2  << " " << q3 << endl ; 
-		// query_type_1(q1 , mpp[i].nam , 1) ;
-		// cout << "yes" ;  
-		// query_type_1( mpp[i].nam  ,q2  , 1) ; 
-		// cout << "yes" ; 
-		// query_type_1( mpp[i].nam  ,q3, 1) ; 
-		// cout << "yes" ; 
 		double now_val = ka * query_type_1(q1 , mpp[i].nam , 0) + kb * query_type_1( mpp[i].nam  ,q2  , 0) + kb * query_type_1( mpp[i].nam  ,q3, 0) ; 
 		if(now_val < minn_val) 
 			minn_val = now_val , zhong = mpp[i].nam ; 
@@ -333,6 +304,7 @@ void query_type_3(string q1 , string q2 , string q3){
 	query_type_1(zhong , q1 , 1) ;
 	query_type_1(zhong , q2 , 1) ;
 }
+
 void read_query(){
 	freopen("read.in" , "r" , stdin) ; 
 	int kind ; 
@@ -353,6 +325,22 @@ void read_query(){
 			cin >> q1 >> q2 >> q3 ; 
 			query_type_3(q1 , q2 , q3) ; 
 		}
+		if(kind == 4){
+			string q1 , q2 ; 
+			double min_tim = 0 ; 
+			cin >> q1 >> q2 ; 
+			int x ; cin >> x ; 
+			string las = q1 ; 
+			for(int i = 1  ; i <= x ; i++ ){
+				string zhong ; cin >> zhong ; 
+				min_tim += query_type_1(las , zhong , 1) ; 
+				las = zhong ; 
+			}
+			min_tim += query_type_1(las , q2 , 1) ; 
+			int H=min_tim/3600;
+			int M=(min_tim-H*3600)/60;
+			cout << "预计总共花费" << H << "h" << M << 'm' << endl ; 
+		}
 	}
 }
 int main()
@@ -361,12 +349,6 @@ int main()
 	Pace();
 	read_Undergound() ; 
 	Changetim();
-	// printf("cnt : %d \n" , G.cnt ) ; 
-	// for(int i = 1 ; i <= G.cnt ; i++)
-	// 	printf("to : %d \n" , G.to[i]) ; 
-	// for(int i = G.head[101] ; i ; i = G.nxt[i]){
-	// 	printf("to : %d \n" , i ) ; 
-	// }
 	read_query() ; 
     return 0;
 }

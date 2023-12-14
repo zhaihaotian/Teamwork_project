@@ -17,7 +17,16 @@
 （建议使用vscode打开 并在tasks.json中的args加入类似"-fexec-charset=UTF-8"的指令）
 
 ## 使用方式 
+在read.in中输入
 
+先输入一个数字表示需求类型 
+
+1 start_name end_name 表示寻找一条从起点到终点的耗时最短路径
+
+2 start_name end_name 表示寻找一条从起点到终点的时间相对较短 但又少换乘
+
+3 start_name end_name1 end_name2 表示二人一起从起点出发 去到不同的终点 但是要求尽量有多的一起走的路程 
 
 ## 使用实例 
 
+参见read.in 和 ans.out 

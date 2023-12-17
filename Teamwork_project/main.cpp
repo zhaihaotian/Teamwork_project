@@ -304,7 +304,52 @@ void query_type_3(string q1 , string q2 , string q3){
 	query_type_1(zhong , q2 , 1) ;
 	query_type_1(zhong , q3 , 1) ;
 }
-
+void query_type_5(){
+	string q1 , q2 ; 
+	cin >> q1 >> q2 ; 
+	string xulie[10] ; 
+	int order[10] ; 
+	int x ; cin >> x ; 
+	int max_num = 1 ; int min_id = 0 ; double min_tim = 9999999999 ; 
+	fer(i,1,x,1){
+		cin >> xulie[i] ;
+		max_num *= i ;  
+		order[i] = i ; 
+	}
+	fer(i,0,max_num-1,1){
+		double sum = 0  ; 
+		string las = q1 ; 
+		fer(j,1,x,1){
+			sum += query_type_1(las , xulie[order[j]] , 0) ; 
+			las = xulie[order[j]]; 
+		}
+		sum += query_type_1(las , q2 , 0) ; 
+		if(min_tim > sum){
+			min_tim = sum ; 
+			min_id = i ; 
+		}
+		next_permutation(order + 1 , order + 1 + x) ; 
+	}
+	fer(i,1,min_id,1){
+		next_permutation(order + 1 , order + 1 + x) ; 
+	}
+	cout << "以这样的顺序访问 总时间最少 : " <<endl ; 
+	cout << q1 << " -> " ; 
+	fer(i,1,x,1){
+		cout << xulie[order[i]] << " -> " ; 
+	} 
+	cout << q2 << endl ; 
+	min_tim = 0 ; string las  = q1 ; 
+	fer(j,1,x,1){
+		min_tim += query_type_1(las , xulie[order[j]] , 1) ; 
+		las = xulie[order[j]]; 
+	}
+	min_tim += query_type_1(las , q2 , 1) ; 
+	int H=min_tim/3600;
+	int M=(min_tim-H*3600)/60;
+	cout << "预计总共花费" << H << "h" << M << 'm' << endl ; 
+	return ; 
+}
 void read_query(){
 	freopen("read.in" , "r" , stdin) ; 
 	int kind ; 
@@ -340,6 +385,9 @@ void read_query(){
 			int H=min_tim/3600;
 			int M=(min_tim-H*3600)/60;
 			cout << "预计总共花费" << H << "h" << M << 'm' << endl ; 
+		}
+		if(kind == 5){
+			query_type_5() ; 
 		}
 	}
 }

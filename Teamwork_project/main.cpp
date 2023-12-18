@@ -32,10 +32,9 @@ struct Graph{
 	void add(int u , int v , double t){
 		to[++cnt] = v; nxt[cnt] = head[u] , head[u] = cnt , tim[cnt] = t ;
 	}
-}G , GG;
+}G , GG , Graph_computing_cost ;
 
 double change_k = 8  ; 
-double ka = 1 , kb = 1 ; 
 
 void build_in(string inp , double x ){
 	change_tim[inp] = x ; 
@@ -45,6 +44,8 @@ void build_in(string inp , double x ){
 				G.add(mp[inp][k] , mp[inp][j] , x) ; 
 				GG.add(mp[inp][j] , mp[inp][k] , x * change_k) ; 
 				GG.add(mp[inp][k] , mp[inp][j] , x * change_k) ; 
+				Graph_computing_cost.add(mp[inp][j] , mp[inp][k] , 0) ; 
+				Graph_computing_cost.add(mp[inp][k] , mp[inp][j] , 0) ; 
 			}
 	return ; 
 }
@@ -86,8 +87,8 @@ void read_Undergound(){
         if (s1 == temp){
         	dis[last][i] = dis[i][last] = sqrt((a - xx) * (a - xx) + (b - yy) * (b - yy));
         	tim[last][i] = tim[i][last] = 1.0*dis[last][i]/(v[s1]); 
-        	G.add(i , last , tim[last][i]) ; GG.add(i , last , tim[last][i]) ;
-			G.add(last , i , tim[last][i]) ; GG.add(last , i , tim[last][i]) ;
+        	G.add(i , last , tim[last][i]) ; GG.add(i , last , tim[last][i]) ; Graph_computing_cost.add(i , last , dis[last][i]) ; 
+			G.add(last , i , tim[last][i]) ; GG.add(last , i , tim[last][i]) ; Graph_computing_cost.add(last , i , dis[last][i]) ;
 		}
         else
             temp = s1;
@@ -290,7 +291,7 @@ void query_type_2(string st , string ed){
 	printf("\n") ; 
 	return ; 
 }
-void query_type_3(string q1 , string q2 , string q3){
+void query_type_3(string q1 , string q2 , string q3 , double ka , double kb){
 	double minn_val = 99999999 ; 
 	string zhong ; 
 	for(int i = 1 ; i <= id_cnt ; i++){
@@ -350,10 +351,150 @@ void query_type_5(){
 	cout << "预计总共花费" << H << "h" << M << 'm' << endl ; 
 	return ; 
 }
+void query_type_6(string st , string ed , string route_broke){
+	if(st == ed){
+		cout << "从"  << st << "到"  << st << endl ; 
+		cout << "耗时0h0min" <<endl <<endl ; 
+		return ; 
+	}
+	double to_tim[maxn] ; int vis[maxn] , pre[maxn] ; 
+	for(int i = 0 ; i < mp[st].size() ; i++){
+		path[i].clear() ; 
+		priority_queue<nod> Q ; 
+		fer(j,1,id_cnt,1){
+			to_tim[j] = 99999999 , vis[j] = 0 ;
+		}
+		int st_id = mp[st][i] ; 
+		to_tim[st_id] = 0 ; 
+		Q.push((nod){st_id , 0}) ; 
+		for(int j = 1 ; j <= id_cnt ; j++){
+			if(mpp[j].route == route_broke){
+				vis[j] = 1 ; 
+			}				
+		}
+		while(!Q.empty()){
+			nod now = Q.top() ; 
+			Q.pop() ; 
+			if(vis[now.num]) continue ;  
+			vis[now.num] = 1; 
+			for(int ii = G.head[now.num] ; ii ; ii = G.nxt[ii]){
+				int y = G.to[ii] ; 
+				if(to_tim[y] > now.tim + G.tim[ii] ){
+					to_tim[y] = now.tim + G.tim[ii] ; 
+					if(!vis[y]){
+						Q.push((nod){y , to_tim[y]}) ; 
+					}
+					pre[y] = now.num ; 
+				}
+			}
+ 		}
+ 		double minn_tim = 99999999 ; int minn_id  ;
+ 		for(int j = 0 ; j < mp[ed].size() ; j++){
+ 			if(minn_tim > to_tim[mp[ed][j]]){
+ 				minn_id = mp[ed][j] ; 
+ 				minn_tim = to_tim[mp[ed][j]] ; 
+			 }
+		}
+		fer(j,1,id_cnt,1){
+			vis[j] = 0 ; 
+		}
+		 int noww = minn_id ; 
+		 path[i].push_front(noww) ; 
+		 vis[noww] = 1 ; 
+		 while(noww != st_id){
+		 	noww = pre[noww] ; 
+			if(noww == 0 || vis[noww]){
+				las_tim[i] = 99999999 ; 
+				break ; 
+			}
+			vis[noww] = 1 ; 
+		 	path[i].push_front(noww) ; 
+		 }
+		las_tim[i] = minn_tim ; 
+	}
+	int min_id ; double min_tim = 99999999 ; 
+	for(int i = 0 ; i < mp[st].size() ; i++){
+		if(las_tim[i] < min_tim){
+			min_tim = las_tim[i]; 
+			min_id = i ; 
+		}
+	}
+	if(min_tim == 99999999){
+		printf("因路线停运 暂时无法通行\n")  ; 
+		return ; 
+	}
+	int zz = 0 ; 
+	while(path[min_id].size()){
+		lasans[++zz] = path[min_id].front() ; 
+		path[min_id].pop_front() ; 
+	}
+	cout <<  "从" << change(mpp[lasans[1]].route) << "的" << mpp[lasans[1]].nam<< "开始" << endl ;  
+	for(int i = 2 ; i <= zz ; i++){
+		if(i == zz){
+			cout <<  "最终到达" <<  mpp[lasans[i]].nam<< endl ; 
+			break ; 
+		}
+		if(mpp[lasans[i]].nam == mpp[lasans[i-1]].nam){
+			cout << "在" << mpp[lasans[i]].nam << "换乘" <<  change(mpp[lasans[i]].route) << endl ; 
+		}
+		else cout << "途径" <<  mpp[lasans[i]].nam << endl ; 
+	}
+	int H=min_tim/3600;
+	int M=(min_tim-H*3600)/60;
+	cout << "预计花费" << H << "h" << M << 'm' << endl ; 
+	printf("\n") ; 
+	return  ; 
+}
+void query_type_7(string st , string ed){
+	int st_id = mp[st][0] , ed_id = mp[ed][0] ; 
+	double dis[maxn] ; int vis[maxn] ; 
+	fer(j,1,id_cnt,1){
+		dis[j] = 99999999 , vis[j] = 0 ;
+	}
+	priority_queue<nod> Q ; 
+	Q.push((nod){st_id , 0}) ; 
+	while(!Q.empty()){
+		nod now = Q.top() ; 
+		Q.pop() ; 
+		if(vis[now.num]) continue ;  
+		vis[now.num] = 1; 
+		for(int ii = Graph_computing_cost.head[now.num] ; ii ; ii = Graph_computing_cost.nxt[ii]){
+			int y = Graph_computing_cost.to[ii] ; 
+			if(dis[y] > now.tim + Graph_computing_cost.tim[ii] ){
+				dis[y] = now.tim + Graph_computing_cost.tim[ii] ; 
+				if(!vis[y]){
+					Q.push((nod){y , dis[y]}) ; 
+				}
+			}
+		}
+	}
+	int diss_m = dis[ed_id] / 1000 ; int cost ; 
+	// printf("diss : %lf \n" , dis[ed_id]) ; 
+	if(diss_m <= 6) {
+		cost = 3 ; 
+	} 
+	else if(diss_m <= 12){
+		cost = 4 ; 
+	}
+	else if(diss_m <= 22){
+		cost = 5 ; 
+	}
+	else if(diss_m <= 32){
+		cost = 6 ; 
+	}
+	else {
+		cost = (diss_m - 32) / 20 + (diss_m % 20 == 0 ? 0 : 1) + 6 ; 
+	}
+	cout << "从" << st << "到"  << ed << "需要" << cost << "元" << endl ; 
+	return ; 
+}	
 void read_query(){
 	freopen("read.in" , "r" , stdin) ; 
 	int kind ; 
+	int cnt = 0 ; 
 	while(scanf("%d",&kind) != EOF ){
+		++cnt ; 
+		cout << "第" << cnt << "个询问的答案："<<endl ; 
 		if(kind == 1){
 			string q1 , q2 ; 
 			cin >> q1 >> q2 ; 
@@ -368,7 +509,8 @@ void read_query(){
 			// cout << "yes" << endl ; 
 			string q1 , q2 , q3; 
 			cin >> q1 >> q2 >> q3 ; 
-			query_type_3(q1 , q2 , q3) ; 
+			query_type_3(q1 , q2 , q3 , 1 , 1) ; 
+			query_type_3(q1 , q2 , q3 , 2 , 1) ; 
 		}
 		if(kind == 4){
 			string q1 , q2 ; 
@@ -389,6 +531,17 @@ void read_query(){
 		if(kind == 5){
 			query_type_5() ; 
 		}
+		if(kind == 6){
+			string q1 , q2 , q3 ; 
+			cin >> q1 >> q2 >> q3 ; 
+			query_type_6(q1 , q2 , q3) ; 
+		}
+		if(kind == 7){
+			string q1 , q2 ; 
+			cin >> q1 >> q2 ; 
+			query_type_7(q1 , q2) ; 
+		}
+		printf("----------------------------------------------------------\n") ; 
 	}
 }
 int main()
